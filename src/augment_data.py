@@ -99,12 +99,35 @@ def synonym_paraphrase(sentence, n_variants=1, n_replacements=1):
     return list(set(variants))
 
 # ---------- Combine ----------
-def generate_paraphrases(question):
+def generate_paraphrases(question, min_variants=4):
     out = set()
     out.update(template_paraphrase(question))
     out.update(synonym_paraphrase(question, n_variants=2))
-    return [p for p in out if p.strip().lower() != question.strip().lower()]
+    out = {p for p in out if p.strip().lower() != question.strip().lower()}
 
+    # Backstop: if we still don't have enough, top up with generic wrappers
+    if len(out) < min_variants:
+        needed = min_variants - len(out)
+        out.update(generic_paraphrase(question, n=needed + 1))
+
+    return list(out)
+
+GENERIC_WRAPPERS = [
+    lambda q: f"Could you tell me {q[0].lower()}{q[1:]}",
+    lambda q: f"I'd like to know {q[0].lower()}{q[1:]}",
+    lambda q: f"I have a question — {q[0].lower()}{q[1:]}",
+    lambda q: f"Do you know {q[0].lower()}{q[1:]}",
+    lambda q: f"{q.rstrip('?')}, can you help?",
+]
+
+def generic_paraphrase(question, n=3):
+    variants = []
+    for wrapper in random.sample(GENERIC_WRAPPERS, min(n, len(GENERIC_WRAPPERS))):
+        try:
+            variants.append(wrapper(question.strip()))
+        except Exception:
+            pass
+    return variants
 # ---------- Run over the dataset ----------
 df = pd.read_csv("data/faq_data.csv")
 print(f"Loaded {len(df)} original FAQ rows")
