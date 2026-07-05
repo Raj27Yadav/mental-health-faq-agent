@@ -42,8 +42,8 @@ streamlit run app.py
 
 ## Live demo
 
-[Add your Streamlit Cloud link here after deployment]
+[https://mental-health-faq-agent.streamlit.app/]
 
 ## Disclaimer
 
-This tool provides general information only and is not a substitute for professional diagnosis, treatment, or crisis support.   
+This tool provides general information only and is not a substitute for professional diagnosis, treatment, or crisis support.
